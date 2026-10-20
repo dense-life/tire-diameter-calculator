@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>2026 기초연금 예상 계산기 | 소득·재산·국민연금</title>
+<meta name="description" content="2026년 기초연금 소득인정액을 소득과 재산 입력으로 추정하고 단독·부부가구의 기초연금 예상액을 확인하는 계산기입니다.">
+<style>
+:root{--ink:#192438;--muted:#5b6678;--line:#dce2eb;--bg:#f4f6fa;--blue:#2457c5;--pale:#edf3ff;--amber:#fff6df}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Noto Sans KR",sans-serif}main{max-width:920px;margin:22px auto;padding:0 14px 36px}.hero{background:linear-gradient(135deg,#193c80,#2868d8);color:#fff;padding:25px;border-radius:17px}.hero h1{margin:0 0 6px;font-size:clamp(23px,4vw,31px)}.hero p{margin:0;color:#e6edff}.card{background:#fff;border:1px solid var(--line);border-radius:15px;padding:20px;margin:14px 0}.card h2{font-size:19px;margin:0 0 14px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field{display:flex;flex-direction:column;gap:6px}.field label{font-weight:700;font-size:14px}.field small,.help{font-size:12px;color:var(--muted)}input,select{width:100%;padding:11px 12px;border:1px solid #cbd3e1;border-radius:9px;font:inherit;color:var(--ink);background:#fff}input:focus,select:focus{outline:2px solid #abc5ff;border-color:var(--blue)}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}button{padding:12px 18px;border:0;border-radius:10px;font:inherit;font-weight:700;cursor:pointer}.primary{background:var(--blue);color:white}.secondary{background:#edf0f6;color:var(--ink)}.notice{background:var(--amber);border-left:4px solid #d89b22;border-radius:8px;padding:12px 14px;font-size:13px;margin:14px 0}.results{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.metric{background:var(--pale);border-radius:12px;padding:14px}.metric span{font-size:13px;color:#465779;display:block}.metric strong{font-size:clamp(18px,3vw,24px);display:block;overflow-wrap:anywhere;margin-top:4px}.line{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}.line span{color:var(--muted)}.line strong{text-align:right}.hidden{display:none!important}.ok{color:#087f5b}.bad{color:#a33b31}a{color:var(--blue)}footer{font-size:12px;color:var(--muted);margin:16px 2px}@media(max-width:620px){.grid,.results{grid-template-columns:1fr}.card{padding:16px}.hero{padding:21px}.line{align-items:flex-start}}
+</style></head>
+<body><main>
+<header class="hero"><h1>2026 기초연금 예상 계산기</h1><p>복잡한 소득인정액을 소득·주택·예금·부채 정보로 간편하게 추정해 보세요.</p></header>
+<div class="notice"><b>먼저 확인하세요.</b> 이 계산기는 입력한 정보를 이용해 소득인정액을 추정합니다. 국민연금 연계감액은 개인별 A급여액 등으로 산정되므로 국민연금 월 수령액만으로 정확히 계산할 수 없습니다. A급여액을 모르면 연계감액 전 기준액을 표시하고, 실제 수령액과 차이가 날 수 있음을 안내합니다.</div>
+
+<section class="card"><h2>1. 가구 정보</h2><div class="grid">
+<div class="field"><label for="house">가구 형태</label><select id="house"><option value="single">단독가구(배우자 없음)</option><option value="coupleOne">부부가구(한 명만 기초연금 수급)</option><option value="coupleBoth">부부가구(두 명 모두 기초연금 수급)</option></select><small>부부가구는 배우자가 기초연금을 신청하지 않아도 부부 기준을 적용합니다.</small></div>
+<div class="field"><label for="region">주택·토지 등이 있는 지역</label><select id="region"><option value="135000000">대도시·특례시 (기본재산액 1억 3,500만원)</option><option value="85000000">중소도시 (기본재산액 8,500만원)</option><option value="72500000">농어촌 (기본재산액 7,250만원)</option></select><small>기본재산액은 일반재산에서 공제하는 지역별 금액입니다.</small></div>
+<div class="field"><label for="earned">가구 월 근로소득 합계 (세전, 원)</label><input id="earned" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" value="0"><small>급여 등 근로소득을 입력하세요. 근로소득 공제는 계산기가 반영합니다.</small></div>
+<div class="field"><label for="other">국민연금 외 월 기타소득 합계 (원)</label><input id="other" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" value="0"><small>사업·임대·이자 등 해당 소득을 입력하세요. 국민연금은 아래 칸에 입력하므로 중복해서 넣지 마세요.</small></div>
+<div class="field"><label for="p1">본인 국민연금 월 수령액 (원)</label><input id="p1" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" value="0"><small>가능하면 부양가족연금액을 제외한 금액을 입력하세요.</small></div>
+<div class="field" id="p2wrap"><label for="p2">배우자 국민연금 월 수령액 (원)</label><input id="p2" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" value="0"></div>
+</div></section>
+
+<section class="card"><h2>2. 재산 정보</h2><p class="help">현재 시가 등을 기준으로 대략 입력하세요. 공동명의 재산은 가구에 해당하는 재산을 중복 없이 합산합니다.</p><div class="grid">
+<div class="field"><label for="home">주택·토지·건축물 등 일반재산 합계 (원)</label><input id="home" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" value="0"><small>주택과 토지 등 일반재산의 대략적인 합계입니다.</small></div>
+<div class="field"><label for="finance">예금·적금·주식 등 금융재산 합계 (원)</label><input id="finance" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" value="0"><small>가구의 금융재산 합계입니다.</small></div>
+<div class="field"><label for="debt">인정 가능한 부채 합계 (원)</label><input id="debt" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" value="0"><small>금융기관 대출 등 증빙 가능한 부채를 입력하세요. 모든 빚이 인정되는 것은 아닙니다.</small></div>
+<div class="field"><label for="special">고급자동차·회원권 등 해당 가액 (원, 선택)</label><input id="special" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" value="0"><small>해당하는 경우에만 입력하세요. 차량은 배기량·차량가액·예외 요건 등에 따라 판단이 달라질 수 있습니다.</small></div>
+<div class="field"><label for="a1">본인 국민연금 A급여액 (원, 선택)</label><input id="a1" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" placeholder="모르면 비워 두세요"><small>국민연금공단에서 확인할 수 있습니다. 총 국민연금액과 다른 값입니다.</small></div>
+<div class="field" id="a2wrap"><label for="a2">배우자 국민연금 A급여액 (원, 선택)</label><input id="a2" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" placeholder="모르면 비워 두세요"><small>배우자가 국민연금을 받는 경우 입력합니다.</small></div>
+</div><div class="actions"><button class="primary" id="calc">예상액 계산하기</button><button class="secondary" id="reset">초기화</button></div></section>
+
+<section class="card" aria-live="polite"><h2>3. 계산 결과</h2><div class="results">
+<div class="metric"><span>본인 월 예상 기초연금</span><strong id="r1">—</strong></div><div class="metric" id="m2"><span>배우자 월 예상 기초연금</span><strong id="r2">—</strong></div><div class="metric"><span>가구 월 합계</span><strong id="rt">—</strong></div>
+</div>
+<div class="line"><span>추정 소득인정액</span><strong id="recognized">—</strong></div><div class="line"><span>2026년 선정기준액</span><strong id="threshold">—</strong></div><div class="line"><span>소득인정액 기준</span><strong id="eligible">—</strong></div><div class="line"><span>추정 근로소득 평가액</span><strong id="earnedOut">—</strong></div><div class="line"><span>재산의 월 소득환산액</span><strong id="assetOut">—</strong></div><div class="line"><span>국민연금 연계감액 정보</span><strong id="linkOut">—</strong></div>
+<div class="notice" id="message">입력 후 계산하기를 누르세요.</div></section>
+
+<section class="card"><h2>계산 기준 및 공식 자료</h2><ul>
+<li>2026년 선정기준액: 단독가구 월 247만원, 부부가구 월 395만 2천원</li><li>2026년 기준연금액: 월 349,700원</li><li>근로소득 평가액 간편식: 월 근로소득에서 116만원을 공제한 뒤 30% 추가 공제</li><li>재산 소득환산은 지역별 기본재산액, 금융재산 2,000만원 공제, 부채 등을 반영한 추정식 사용</li><li>부부가 모두 기초연금을 받으면 산정된 개인별 금액에서 각각 20% 감액</li>
+</ul><p class="help">공식 산정에는 소득 종류별 인정 방식, 재산별 평가 기준, 임대보증금·부채 인정 여부, 고급자동차 예외, 직역연금 수급자 제외·특례, 소득역전방지 감액 등이 추가 적용됩니다. 따라서 아래 결과는 자격 확정이나 지급액 보장이 아닙니다.</p>
+<ul><li><a href="https://basicpension.mohw.go.kr/" target="_blank" rel="noopener">기초연금 공식 홈페이지</a></li><li><a href="https://www.bokjiro.go.kr/" target="_blank" rel="noopener">복지로</a></li><li><a href="https://www.nps.or.kr/elctcvlcpt/comm/getOHAC0000M5.do?menuId=MN24001038" target="_blank" rel="noopener">국민연금 급여액·A급여액 조회 안내</a></li><li><a href="https://www.law.go.kr/" target="_blank" rel="noopener">국가법령정보센터</a></li></ul></section>
+<footer>정보 제공용 모의계산기입니다. 실제 수급 여부와 지급액은 신청 후 관계기관의 조사 및 결정으로 확정됩니다. 문의: 보건복지상담센터 129, 국민연금공단 1355.</footer>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const val=id=>Math.max(0,Number(String($(id).value||'').replace(/,/g,'').replace(/[^0-9.]/g,''))||0);
+function formatMoneyInput(el){
+ const digits=String(el.value||'').replace(/[^0-9]/g,'');
+ el.value=digits?Number(digits).toLocaleString('en-US'):'';
+}
+document.querySelectorAll('input[inputmode="numeric"]').forEach(el=>{
+ el.addEventListener('input',()=>formatMoneyInput(el));
+ el.addEventListener('blur',()=>formatMoneyInput(el));
+});
+const fmt=x=>Math.round(Math.max(0,x)).toLocaleString('ko-KR')+'원';
+const BASE=349700;
+function showHouse(){const h=$('house').value,c=h!=='single';$('p2wrap').classList.toggle('hidden',!c);$('a2wrap').classList.toggle('hidden',h!=='coupleBoth');$('m2').classList.toggle('hidden',h!=='coupleBoth')}
+function incomeAndAssets(){
+ const couple=$('house').value!=='single', baseDed=Number($('region').value);
+ const earned=val('earned'), other=val('other'), pensions=val('p1')+(couple?val('p2'):0);
+ // Simplified earned-income assessment: (earned - 1.16m) * 70%, floored at zero.
+ const earnedEval=Math.max(0,earned-1160000)*.7;
+ const general=Math.max(0,val('home')-baseDed);
+ const finance=Math.max(0,val('finance')-20000000);
+ const debt=val('debt');
+ const converted=Math.max(0,general+finance-debt)*.04/12;
+ const special=val('special'); // if applicable, high-value car/membership may be assessed at full monthly value
+ const recognized=earnedEval+other+pensions+converted+special;
+ return {couple,baseDed,earnedEval,converted,recognized,pensions};
+}
+function calcBenefit(pension,a){
+ // Known A-benefit permits a reference calculation; if absent, show full base pension before linkage reduction.
+ if(a!==null){
+  const aFormula=Math.max(0,BASE-(2/3)*a+BASE/2);
+  const pensionBranch=Math.max(0,BASE*2.5-pension);
+  return {amount:Math.min(BASE,Math.max(aFormula,pensionBranch)),known:true};
+ }
+ return {amount:BASE,known:false};
+}
+function calculate(){
+ const h=$('house').value, d=incomeAndAssets(), th=d.couple?3952000:2470000, eligible=d.recognized<=th;
+ const a1=$('a1').value.trim()===''?null:val('a1');
+ const a2=$('a2').value.trim()===''?null:val('a2');
+ const b1=calcBenefit(val('p1'),a1), both=h==='coupleBoth', b2=both?calcBenefit(val('p2'),a2):{amount:0,known:true};
+ let x=eligible?b1.amount:0, y=eligible?b2.amount:0;
+ if(both){x*=.8;y*=.8;}
+ let total=x+y;
+ // Estimate income-reversal reduction at household level.
+ if(eligible&&total>0&&d.recognized+total>th){
+  total=Math.max(both?69940:34970,total-(d.recognized+total-th));
+  if(both){x=total/2;y=total/2}else x=total;
+ }
+ x=Math.floor(x/10)*10;y=Math.floor(y/10)*10;total=x+y;
+ $('r1').textContent=fmt(x);$('r2').textContent=fmt(y);$('rt').textContent=fmt(total);
+ $('recognized').textContent=fmt(d.recognized);$('threshold').textContent=fmt(th);
+ $('eligible').innerHTML=eligible?'<span class="ok">선정기준액 이내(다른 조건 별도)</span>':'<span class="bad">선정기준액 초과</span>';
+ $('earnedOut').textContent=fmt(d.earnedEval);$('assetOut').textContent=fmt(d.converted);
+ $('linkOut').textContent=(a1===null?'본인 A급여 미입력': '본인 A급여 입력')+(h==='coupleBoth'?(' / '+(a2===null?'배우자 A급여 미입력':'배우자 A급여 입력')):'');
+ let msg='소득인정액은 입력한 값과 간편 산식으로 추정했습니다. 실제 조사에서는 소득·재산의 종류별 법정 평가 방식이 적용됩니다.';
+ if(!eligible)msg+=' 추정 소득인정액이 선정기준액을 초과해 모의계산상 기초연금을 0원으로 표시했습니다.';
+ if(a1===null||(h==='coupleBoth'&&a2===null))msg+=' A급여액을 입력하지 않은 수급자는 국민연금 연계감액을 계산하지 못해 기준연금액을 기준으로 표시했습니다. 실제 기초연금액은 더 적을 수 있습니다.';
+ if(both)msg+=' 부부가 모두 수급하는 경우로 보고 각 20% 부부감액을 반영했습니다.';
+ else if(h==='coupleOne')msg+=' 부부가구에서 본인만 기초연금을 받는 것으로 가정했습니다. 배우자의 소득·국민연금은 가구 소득인정액에 포함됩니다.';
+ msg+=' 직역연금, 고급자동차 판단, 재산 평가, 소득역전방지 감액 등은 실제 심사와 다를 수 있습니다.';
+ $('message').textContent=msg;
+}
+$('house').addEventListener('change',showHouse);$('calc').addEventListener('click',calculate);
+$('reset').addEventListener('click',()=>{['earned','other','p1','p2','home','finance','debt','special'].forEach(id=>$(id).value=0);['a1','a2'].forEach(id=>$(id).value='');$('house').value='single';$('region').value='135000000';showHouse();calculate()});
+showHouse();calculate();
+</script></body></html>
