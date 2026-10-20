@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="대출금액, 금리, 기간, 상환방식에 따른 월 상환액과 총이자를 계산하는 대출금리 계산기입니다.">
+<title>대출금리·월 상환액 계산기 | 밀도 높은 삶</title>
+<style>
+:root{--ink:#202733;--muted:#667085;--line:#d9dee7;--bg:#f4f7fb;--blue:#2057a6;--pale:#eaf2ff;--white:#fff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif;line-height:1.55}
+.wrap{max-width:940px;margin:0 auto;padding:22px 15px 42px}
+header{padding:24px 22px;border-radius:18px;background:linear-gradient(135deg,#173c72,#2e73bd);color:#fff;margin-bottom:18px}
+header h1{font-size:clamp(1.45rem,4vw,2rem);margin:0 0 8px}
+header p{margin:0;color:#e7f0ff}
+.panel{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:20px;margin:14px 0;box-shadow:0 4px 18px rgba(30,55,90,.04)}
+h2{font-size:1.15rem;margin:0 0 15px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+.field label{display:block;font-weight:650;font-size:.93rem;margin-bottom:6px}
+.field input,.field select{width:100%;padding:12px;border:1px solid #cbd3df;border-radius:10px;font:inherit;background:#fff;color:var(--ink)}
+.field small{display:block;color:var(--muted);font-size:.8rem;margin-top:5px}
+.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:17px}
+button{border:0;border-radius:10px;padding:12px 17px;font:inherit;font-weight:700;cursor:pointer}
+.primary{background:var(--blue);color:#fff}.secondary{background:#edf1f6;color:#263446}
+.results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.metric{padding:15px;border-radius:12px;background:#f5f8fc;border:1px solid #e1e7f0}
+.metric .name{color:var(--muted);font-size:.88rem}.metric .value{font-size:clamp(1.15rem,3.5vw,1.6rem);font-weight:800;overflow-wrap:anywhere}
+.metric.highlight{background:var(--pale);border-color:#c9dcff}
+.note{font-size:.9rem;color:var(--muted)}
+.error{color:#b42318;font-weight:650;margin-top:10px}
+table{width:100%;border-collapse:collapse;font-size:.9rem;margin-top:12px}
+th,td{padding:10px 8px;text-align:right;border-bottom:1px solid #e5e9f0;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+.tablewrap{overflow-x:auto}
+footer{color:var(--muted);font-size:.82rem;padding:8px 3px}
+@media(max-width:620px){.grid,.results{grid-template-columns:1fr}.panel{padding:16px}header{padding:21px 17px}th,td{padding:9px 6px;font-size:.82rem}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>대출금리·월 상환액 계산기</h1>
+<p>대출금액과 금리, 기간, 상환방식을 입력해 월 납입액과 총이자를 비교해 보세요.</p>
+</header>
+<section class="panel">
+<h2>대출 조건 입력</h2>
+<div class="grid">
+<div class="field"><label for="principal">대출금액 (원)</label><input id="principal" type="number" min="0" step="100000" value="300000000"></div>
+<div class="field"><label for="rate">연 금리 (%)</label><input id="rate" type="number" min="0" max="100" step="0.01" value="4.2"></div>
+<div class="field"><label for="years">대출 기간 (년)</label><input id="years" type="number" min="1" max="50" step="1" value="30"></div>
+<div class="field"><label for="method">상환 방식</label><select id="method"><option value="equalPayment">원리금균등상환</option><option value="equalPrincipal">원금균등상환</option><option value="interestOnly">만기일시상환</option></select></div>
+<div class="field"><label for="monthsExtra">거치기간 (개월)</label><input id="monthsExtra" type="number" min="0" max="600" step="1" value="0"><small>거치기간에는 원금 없이 이자만 납부하는 것으로 가정합니다.</small></div>
+<div class="field"><label for="extra">월 추가 상환액 (원)</label><input id="extra" type="number" min="0" step="10000" value="0"><small>간단 비교용이며 실제 조기상환 수수료는 반영하지 않습니다.</small></div>
+</div>
+<div class="actions"><button class="primary" id="calculate">계산하기</button><button class="secondary" id="reset">초기화</button><button class="secondary" id="copy">결과 복사</button><button class="secondary" id="print">인쇄 / PDF 저장</button></div>
+<div id="error" class="error" role="alert"></div>
+</section>
+<section class="panel">
+<h2>계산 결과</h2>
+<div class="results">
+<div class="metric highlight"><div class="name">첫 상환월 납입액 (거치 제외)</div><div class="value" id="firstPayment">-</div></div>
+<div class="metric"><div class="name">거치기간 월 이자</div><div class="value" id="interestOnly">-</div></div>
+<div class="metric"><div class="name">전체 예상 이자</div><div class="value" id="totalInterest">-</div></div>
+<div class="metric"><div class="name">총 상환액</div><div class="value" id="totalPaid">-</div></div>
+<div class="metric"><div class="name">상환 완료 예상 기간</div><div class="value" id="duration">-</div></div>
+<div class="metric"><div class="name">마지막 달 납입액</div><div class="value" id="lastPayment">-</div></div>
+</div>
+<p class="note" id="summary"></p>
+</section>
+<section class="panel">
+<h2>초기 상환 일정 (최대 12개월)</h2>
+<p class="note">월별 납입액은 원 단위로 계산한 뒤 화면에서 반올림해 표시합니다. 실제 금융기관의 계산 방식과는 차이가 날 수 있습니다.</p>
+<div class="tablewrap"><table><thead><tr><th>회차</th><th>납입액</th><th>원금</th><th>이자</th><th>남은 원금</th></tr></thead><tbody id="schedule"><tr><td colspan="5" style="text-align:center">조건을 입력하고 계산하세요.</td></tr></tbody></table></div>
+</section>
+<section class="panel">
+<h2>계산 시 알아둘 점</h2>
+<ul>
+<li>연 금리를 12로 나눈 월 금리와 월 단위 상환을 기준으로 계산합니다.</li>
+<li>변동금리의 향후 변동, 보증료, 인지세, 보험료, 중도상환수수료 등은 포함하지 않습니다.</li>
+<li>거치기간은 입력한 전체 대출기간에 포함되는 것으로 가정합니다. 거치기간 이후 남은 기간에 원금을 상환합니다.</li>
+<li>월 추가 상환액은 매월 정규 상환액에 더해 원금을 조기 상환하는 간단한 시뮬레이션입니다.</li>
+<li>실제 대출 실행 전에는 금융기관의 상환예정표와 약정 조건을 확인하세요.</li>
+</ul>
+</section>
+<footer>밀도 높은 삶 · 대출 상환액 참고 계산기</footer>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const money=n=>Math.round(n).toLocaleString('ko-KR')+'원';
+const num=id=>Number($(id).value);
+function calc(){
+  $('error').textContent='';
+  const P=num('principal'), annual=num('rate'), years=num('years'), grace=num('monthsExtra'), extra=num('extra'), method=$('method').value;
+  if(!Number.isFinite(P)||P<=0||!Number.isFinite(annual)||annual<0||annual>100||!Number.isFinite(years)||years<1||years>50||!Number.isInteger(grace)||grace<0||grace>=years*12||!Number.isFinite(extra)||extra<0){
+    $('error').textContent='입력값을 확인해 주세요. 대출금액은 0보다 커야 하고, 금리는 0~100%, 기간은 1~50년이어야 합니다. 거치기간은 전체 기간보다 짧아야 합니다.'; return;
+  }
+  const n=Math.round(years*12), r=annual/100/12, repaymentMonths=n-grace;
+  const graceInterest=P*r;
+  let balance=P,totalInterest=0,totalPaid=0,first=null,last=0,rows=[],month=0;
+  for(let i=1;i<=grace;i++){
+    const interest=balance*r, pay=interest;
+    totalInterest+=interest; totalPaid+=pay; month++; last=pay;
+    if(first===null) first=pay;
+    if(i<=12) rows.push({month,pay,principal:0,interest,balance});
+  }
+  for(let j=1;j<=repaymentMonths && balance>0.005;j++){
+    const interest=balance*r;
+    let principalPay=0, pay=0;
+    if(method==='equalPayment'){
+      const base=r===0?P/repaymentMonths:P*r/(1-Math.pow(1+r,-repaymentMonths));
+      pay=Math.min(balance+interest,base+extra);
+      principalPay=Math.min(balance,pay-interest);
+    } else if(method==='equalPrincipal'){
+      const base=P/repaymentMonths;
+      principalPay=Math.min(balance,base+extra);
+      pay=principalPay+interest;
+    } else {
+      principalPay=(j===repaymentMonths)?balance:Math.min(balance,extra);
+      pay=interest+principalPay;
+    }
+    if(pay<=0 && balance>0){$('error').textContent='상환액이 0원입니다. 입력값을 확인해 주세요.';return;}
+    balance=Math.max(0,balance-principalPay);
+    totalInterest+=interest;totalPaid+=pay;month++;last=pay;
+    if(first===null) first=pay;
+    if(month<=12) rows.push({month,pay,principal:principalPay,interest,balance});
+    if(j===repaymentMonths && balance>0.005){ /* remains due at maturity */ }
+  }
+  if(balance>0.005){
+    // With a fixed term, any remaining balance is due at maturity.
+    const interest=balance*r, pay=balance+interest;
+    totalInterest+=interest;totalPaid+=pay;month++;last=pay;balance=0;
+    if(month<=12) rows.push({month,pay,principal:pay-interest,interest,balance});
+  }
+  $('firstPayment').textContent=first===null?'-':money(first);
+  $('interestOnly').textContent=money(graceInterest);
+  $('totalInterest').textContent=money(totalInterest);
+  $('totalPaid').textContent=money(totalPaid);
+  $('duration').textContent=Math.floor(month/12)+'년 '+(month%12)+'개월';
+  $('lastPayment').textContent=money(last);
+  $('summary').textContent=`대출 ${money(P)} · 연 ${annual.toFixed(2)}% · ${years}년 · ${$('method').selectedOptions[0].text} 기준의 예상치입니다.`;
+  $('schedule').innerHTML=rows.length?rows.map(x=>`<tr><td>${x.month}회</td><td>${money(x.pay)}</td><td>${money(x.principal)}</td><td>${money(x.interest)}</td><td>${money(x.balance)}</td></tr>`).join(''):'<tr><td colspan="5">표시할 일정이 없습니다.</td></tr>';
+  window.lastResult=`대출금리·월 상환액 계산 결과\n대출금액: ${money(P)}\n연 금리: ${annual.toFixed(2)}%\n기간: ${years}년\n상환 방식: ${$('method').selectedOptions[0].text}\n첫 상환월 납입액: ${first===null?'-':money(first)}\n전체 예상 이자: ${money(totalInterest)}\n총 상환액: ${money(totalPaid)}\n상환 완료 예상 기간: ${Math.floor(month/12)}년 ${month%12}개월\n마지막 달 납입액: ${money(last)}\n※ 참고용 추정치이며 실제 금융기관 계산과 다를 수 있습니다.`;
+}
+$('calculate').addEventListener('click',calc);
+$('reset').addEventListener('click',()=>{ $('principal').value=300000000;$('rate').value=4.2;$('years').value=30;$('method').value='equalPayment';$('monthsExtra').value=0;$('extra').value=0;calc();});
+$('copy').addEventListener('click',async()=>{if(!window.lastResult)calc();try{await navigator.clipboard.writeText(window.lastResult);$('error').textContent='결과를 복사했습니다.';}catch(e){$('error').textContent='자동 복사가 제한되었습니다. 결과를 직접 선택해 복사해 주세요.';}});
+$('print').addEventListener('click',()=>window.print());
+['principal','rate','years','method','monthsExtra','extra'].forEach(id=>$(id).addEventListener('change',calc));
+calc();
+</script>
+</body>
+</html>
