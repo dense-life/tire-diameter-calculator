@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="타이어 폭, 편평비, 휠 인치를 입력해 타이어 외경과 둘레, 기존 타이어 대비 변화율을 계산하는 무료 계산기입니다.">
+<title>타이어 외경 계산기</title>
+<style>
+  :root { color-scheme: light; --blue:#1769aa; --line:#d8e1ea; --soft:#f1f6fb; --text:#202833; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:24px 14px; font-family:system-ui,-apple-system,"Malgun Gothic",sans-serif; color:var(--text); background:#f7f9fc; line-height:1.55; }
+  main { max-width:720px; margin:0 auto; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:22px; box-shadow:0 4px 18px rgba(20,45,75,.05); }
+  h1 { margin:0 0 8px; font-size:clamp(1.55rem,5vw,2rem); }
+  .intro { margin:0 0 22px; color:#536273; }
+  h2 { font-size:1.1rem; margin:22px 0 12px; }
+  .grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+  label { display:block; font-size:.92rem; font-weight:650; margin-bottom:6px; }
+  input { width:100%; min-width:0; padding:12px 10px; border:1px solid #bac7d5; border-radius:9px; font:inherit; background:#fff; }
+  input:focus { outline:2px solid #8dc4f5; border-color:var(--blue); }
+  button { width:100%; border:0; border-radius:10px; padding:13px 16px; margin-top:18px; font:inherit; font-weight:750; cursor:pointer; }
+  .primary { color:#fff; background:var(--blue); }
+  .secondary { color:#174e7b; background:#e8f2fb; margin-top:10px; }
+  .result { margin-top:18px; padding:17px; border-radius:12px; background:var(--soft); border:1px solid #dce8f4; }
+  .big { font-size:1.9rem; font-weight:800; color:#12613a; line-height:1.2; margin:5px 0 14px; }
+  .row { display:flex; justify-content:space-between; gap:12px; padding:7px 0; border-top:1px solid #dce5ee; }
+  .row span:first-child { color:#526273; }
+  .row strong { text-align:right; overflow-wrap:anywhere; }
+  .note { font-size:.85rem; color:#5d6875; margin:14px 0 0; }
+  .formula { padding:13px; background:#fafbfd; border:1px dashed #c7d4e1; border-radius:10px; }
+  footer { text-align:center; font-size:.82rem; color:#6a7480; padding:18px 4px 0; }
+  @media(max-width:520px) { .card { padding:17px; } .grid { gap:8px; } input { padding:11px 7px; font-size:.95rem; } label { font-size:.82rem; } }
+</style>
+</head>
+<body>
+<main>
+  <section class="card">
+    <h1>타이어 외경 계산기</h1>
+    <p class="intro">타이어 폭·편평비·휠 인치를 입력하면 이론상 외경과 둘레를 계산하고, 기존 타이어와 차이도 비교합니다.</p>
+
+    <h2>변경할 타이어 규격</h2>
+    <div class="grid">
+      <div><label for="newW">폭 (mm)</label><input id="newW" type="number" min="1" max="1000" value="265" inputmode="decimal"></div>
+      <div><label for="newH">편평비 (%)</label><input id="newH" type="number" min="1" max="100" value="35" inputmode="decimal"></div>
+      <div><label for="newR">휠 (인치)</label><input id="newR" type="number" min="1" max="40" value="21" inputmode="decimal"></div>
+    </div>
+
+    <h2>기존 타이어 규격</h2>
+    <div class="grid">
+      <div><label for="oldW">폭 (mm)</label><input id="oldW" type="number" min="1" max="1000" value="255" inputmode="decimal"></div>
+      <div><label for="oldH">편평비 (%)</label><input id="oldH" type="number" min="1" max="100" value="35" inputmode="decimal"></div>
+      <div><label for="oldR">휠 (인치)</label><input id="oldR" type="number" min="1" max="40" value="21" inputmode="decimal"></div>
+    </div>
+
+    <button class="primary" id="calculate" type="button">외경 계산하기</button>
+    <button class="secondary" id="swap" type="button">기존 타이어와 변경 타이어 바꾸기</button>
+
+    <div class="result" id="result" aria-live="polite">
+      <div>변경 타이어 외경</div>
+      <div class="big" id="newDiameter">718.9 mm</div>
+      <div class="row"><span>기존 타이어 외경</span><strong id="oldDiameter">711.9 mm</strong></div>
+      <div class="row"><span>외경 차이</span><strong id="difference">+7.0 mm</strong></div>
+      <div class="row"><span>외경 변화율</span><strong id="percentage">+0.98%</strong></div>
+      <div class="row"><span>변경 타이어 이론상 둘레</span><strong id="circumference">2,258.5 mm</strong></div>
+      <div class="row"><span>반지름 변화</span><strong id="radiusDiff">+3.5 mm</strong></div>
+      <p class="note" id="error" role="alert"></p>
+    </div>
+
+    <h2>계산 공식</h2>
+    <div class="formula">
+      <strong>외경(mm) = 휠 인치 × 25.4 + 2 × 타이어 폭 × 편평비 ÷ 100</strong>
+      <p class="note">예: 255/35R21 → 21 × 25.4 + 2 × 255 × 35 ÷ 100 = 711.9mm</p>
+    </div>
+    <p class="note">주의: 계산 결과는 규격에 따른 이론값입니다. 실제 타이어 외경은 제조사·제품·공기압·하중 등에 따라 달라질 수 있습니다. 장착 전 차량 제조사의 허용 규격, 휠 폭, 하중지수, 속도 등급 및 간섭 여부를 확인하세요. 사륜구동 차량은 앞뒤 외경 차이에 대한 제조사 기준도 확인해야 합니다.</p>
+  </section>
+  <footer>타이어 외경 계산기 · 무료 사용</footer>
+</main>
+<script>
+(function () {
+  const ids = ['newW','newH','newR','oldW','oldH','oldR'];
+  const $ = id => document.getElementById(id);
+  function diameter(w,h,r) { return r * 25.4 + 2 * w * h / 100; }
+  function fmt(n) { return n.toLocaleString('ko-KR',{minimumFractionDigits:1,maximumFractionDigits:1}); }
+  function signed(n, digits=1) { return (n > 0 ? '+' : '') + n.toLocaleString('ko-KR',{minimumFractionDigits:digits,maximumFractionDigits:digits}); }
+  function calculate() {
+    const v = Object.fromEntries(ids.map(id => [id, Number($(id).value)]));
+    const valid = ids.every(id => $(id).value.trim() !== '' && Number.isFinite(v[id])) &&
+      v.newW > 0 && v.newH > 0 && v.newH <= 100 && v.newR > 0 &&
+      v.oldW > 0 && v.oldH > 0 && v.oldH <= 100 && v.oldR > 0 &&
+      v.newW <= 1000 && v.oldW <= 1000 && v.newR <= 40 && v.oldR <= 40;
+    if (!valid) {
+      $('error').textContent = '모든 칸에 올바른 숫자를 입력해 주세요. 편평비는 1~100 사이여야 합니다.';
+      return;
+    }
+    $('error').textContent = '';
+    const nd = diameter(v.newW,v.newH,v.newR);
+    const od = diameter(v.oldW,v.oldH,v.oldR);
+    const diff = nd - od;
+    $('newDiameter').textContent = fmt(nd) + ' mm';
+    $('oldDiameter').textContent = fmt(od) + ' mm';
+    $('difference').textContent = signed(diff) + ' mm';
+    $('percentage').textContent = signed(diff / od * 100, 2) + '%';
+    $('circumference').textContent = fmt(Math.PI * nd) + ' mm';
+    $('radiusDiff').textContent = signed(diff / 2) + ' mm';
+  }
+  $('calculate').addEventListener('click', calculate);
+  ids.forEach(id => $(id).addEventListener('input', calculate));
+  $('swap').addEventListener('click', () => {
+    [['newW','oldW'],['newH','oldH'],['newR','oldR']].forEach(([a,b]) => {
+      const t = $(a).value; $(a).value = $(b).value; $(b).value = t;
+    });
+    calculate();
+  });
+  calculate();
+})();
+</script>
+</body>
+</html>
