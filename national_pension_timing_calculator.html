@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="국민연금 조기수령, 정상수령, 연기수령을 물가상승률과 현재가치까지 고려해 비교하는 계산기">
+<title>국민연금 조기·정상·연기수령 계산기 | 밀도 높은 삶</title>
+<style>
+:root{--ink:#202938;--muted:#667085;--line:#dce2eb;--bg:#f4f7fb;--blue:#2458a6;--pale:#eaf2ff;--green:#e9f7ef;--white:#fff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif;line-height:1.6}
+.wrap{max-width:1000px;margin:auto;padding:20px 14px 40px}header{background:linear-gradient(135deg,#183b70,#3476bb);color:#fff;padding:25px 22px;border-radius:18px;margin-bottom:16px}h1{font-size:clamp(1.45rem,4vw,2rem);margin:0 0 7px}header p{margin:0;color:#e8f1ff}.panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:19px;margin:14px 0;box-shadow:0 4px 18px #243e5d08}h2{font-size:1.14rem;margin:0 0 14px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field label{display:block;font-weight:700;font-size:.92rem;margin-bottom:5px}.field input,.field select{width:100%;padding:11px;border:1px solid #cbd3df;border-radius:10px;background:white;font:inherit;color:var(--ink)}.field small{display:block;color:var(--muted);font-size:.8rem;margin-top:4px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}button{border:0;border-radius:10px;padding:11px 15px;font:inherit;font-weight:700;cursor:pointer}.primary{background:var(--blue);color:white}.secondary{background:#edf1f6;color:#263446}.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.resultcard{border:1px solid var(--line);border-radius:13px;padding:14px;background:#fafcff}.resultcard h3{font-size:1rem;margin:0 0 10px}.resultcard .big{font-size:1.25rem;font-weight:800;overflow-wrap:anywhere}.resultcard p{margin:5px 0;font-size:.88rem}.pill{display:inline-block;padding:3px 8px;border-radius:99px;background:var(--pale);font-size:.78rem;font-weight:700}.tablewrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:.88rem}th,td{padding:10px 8px;border-bottom:1px solid #e7ebf1;text-align:right;white-space:nowrap}th:first-child,td:first-child{text-align:left} .muted{color:var(--muted);font-size:.88rem}.warn{background:#fff8e8;border:1px solid #f3dfad;padding:12px;border-radius:10px;font-size:.88rem}.error{color:#b42318;font-weight:700;margin-top:8px}footer{color:var(--muted);font-size:.82rem;padding:8px 3px}
+@media(max-width:700px){.grid{grid-template-columns:1fr}.cards{grid-template-columns:1fr}.panel{padding:15px}header{padding:21px 17px}}
+@media print{body{background:white}.wrap{max-width:none;padding:0}header{background:#fff;color:#111;border:1px solid #aaa}header p{color:#333}.actions{display:none}.panel{box-shadow:none;break-inside:avoid}}
+</style>
+</head>
+<body><div class="wrap">
+<header><h1>국민연금 조기·정상·연기수령 계산기</h1><p>물가상승률을 반영해 예상 월 연금액, 누적 수령액, 현재가치와 손익분기 나이를 비교합니다.</p></header>
+<section class="panel">
+<h2>계산 조건 입력</h2>
+<div class="grid">
+<div class="field"><label for="normalAge">정상 수령 개시 나이</label><select id="normalAge"><option>60</option><option>61</option><option>62</option><option>63</option><option>64</option><option selected>65</option><option>66</option><option>67</option><option>68</option><option>69</option><option>70</option></select><small>출생연도별 국민연금공단의 지급개시 연령을 확인해 입력하세요.</small></div>
+<div class="field"><label for="monthly">정상 수령 시 예상 월 연금액 (원)</label><input id="monthly" type="number" min="1" step="10000" value="1500000"><small>국민연금공단에서 조회한 예상액을 입력합니다. 현재 구매력 기준으로 비교합니다.</small></div>
+<div class="field"><label for="earlyYears">조기수령 기간 (년)</label><select id="earlyYears"><option value="0">조기수령 안 함</option><option value="1">1년 조기</option><option value="2">2년 조기</option><option value="3" selected>3년 조기</option><option value="4">4년 조기</option><option value="5">5년 조기</option></select><small>1년당 6% 감액, 최대 5년(30%)으로 단순 계산합니다.</small></div>
+<div class="field"><label for="delayYears">연기수령 기간 (년)</label><select id="delayYears"><option value="0">연기수령 안 함</option><option value="1">1년 연기</option><option value="2">2년 연기</option><option value="3" selected>3년 연기</option><option value="4">4년 연기</option><option value="5">5년 연기</option></select><small>1년당 7.2% 가산, 최대 5년(36%)으로 단순 계산합니다.</small></div>
+<div class="field"><label for="inflation">예상 연평균 물가상승률 (%)</label><input id="inflation" type="number" min="-5" max="20" step="0.1" value="2.0"><small>미래 물가를 예측하는 가정값이며 실제 물가와 다를 수 있습니다.</small></div>
+<div class="field"><label for="endAge">비교할 최종 나이</label><select id="endAge"><option>75</option><option>80</option><option>85</option><option selected>90</option><option>95</option><option>100</option><option>105</option></select><small>각 수령 방식으로 해당 나이까지 생존한다고 가정합니다.</small></div>
+</div>
+<div class="actions"><button class="primary" id="calc">계산하기</button><button class="secondary" id="reset">초기화</button><button class="secondary" id="copy">결과 복사</button><button class="secondary" id="print">인쇄 / PDF 저장</button></div><div class="error" id="error"></div>
+</section>
+<section class="panel"><h2>수령 방식별 비교</h2><div class="cards" id="cards"></div><p class="muted" id="assumptions"></p></section>
+<section class="panel"><h2>누적 수령액 비교</h2><div class="tablewrap"><table><thead><tr><th>수령 방식</th><th>수령 시작</th><th>첫해 월액(현재가치 기준)</th><th>누적 명목 수령액</th><th>누적 물가조정 가치</th></tr></thead><tbody id="tablebody"></tbody></table></div><p class="muted">명목 수령액은 미래에 실제로 지급될 것으로 가정한 금액의 합계이며, 현재가치는 물가상승률로 나누어 정상 수령 개시 나이의 구매력 기준으로 환산한 금액입니다.</p></section>
+<section class="panel"><h2>계산 방식과 유의사항</h2><ul>
+<li>조기노령연금은 정상 개시보다 1개월 빠를 때마다 0.5% 감액, 연기연금은 1개월 늦출 때마다 0.6% 가산하는 기본 규칙을 연 단위로 적용합니다.</li>
+<li>물가상승률은 연금 수령액이 매년 같은 비율로 인상된다고 가정해 명목 누적액을 계산합니다. 실제 국민연금은 소비자물가변동률 등에 따라 조정되며, 미래 인상률은 확정되어 있지 않습니다.</li>
+<li>물가조정 가치는 각 연도 수령액을 정상 수령 개시 나이 기준의 구매력으로 환산해 비교합니다. 물가를 반영한 현재가치와 명목금액은 서로 다른 지표입니다.</li>
+<li>개인별 실제 연금액은 가입기간, 소득기록, 부양가족연금액, 재평가율, 제도 변경 및 신청 조건에 따라 달라집니다. 조기노령연금은 소득 등 별도 자격요건도 확인해야 합니다.</li>
+<li>세금, 건강보험료, 기초연금 영향, 사망 시 유족급여, 투자수익 및 개인별 생존확률은 반영하지 않았습니다. 결과는 의사결정 참고용이며 공단의 공식 예상액을 대신하지 않습니다.</li>
+</ul><div class="warn">중요: 이 계산기는 ‘물가가 매년 입력한 비율만큼 상승하고 연금액도 같은 비율로 조정된다’는 단순 가정입니다. 실제 연금액 조정은 과거 소비자물가변동률 등 제도 기준에 따르므로 예측값과 차이가 날 수 있습니다.</div></section>
+<footer>밀도 높은 삶 · 국민연금 수령 시기 비교 참고 도구</footer>
+</div>
+<script>
+const $=id=>document.getElementById(id); const won=n=>Math.round(n).toLocaleString('ko-KR')+'원';
+function calculate(){
+ $('error').textContent='';
+ const age=Number($('normalAge').value), base=Number($('monthly').value), early=Number($('earlyYears').value), delay=Number($('delayYears').value), inf=Number($('inflation').value)/100, end=Number($('endAge').value);
+ if(!Number.isFinite(base)||base<=0||!Number.isFinite(inf)||inf<-.05||inf>.20||end<=age-early||end<=age+delay-0.01){$('error').textContent='입력값을 확인하세요. 예상 월 연금액은 0보다 커야 하며, 최종 나이는 수령 시작 나이보다 늦어야 합니다.';return;}
+ const opts=[
+  {key:'early',name:'조기수령',start:age-early,factor:1-early*.06,desc:early?`${early}년 조기 · ${Math.round((1-early*.06)*100)}% 지급`:'조기수령 선택 안 함'},
+  {key:'normal',name:'정상수령',start:age,factor:1,desc:'정상 개시 · 100% 지급'},
+  {key:'delay',name:'연기수령',start:age+delay,factor:1+delay*.072,desc:delay?`${delay}년 연기 · ${Math.round((1+delay*.072)*1000)/10}% 지급`:'연기수령 선택 안 함'}
+ ];
+ const results=opts.map(o=>{
+  let nominal=0,real=0,first=o.factor*base, months=0;
+  // Yearly periods: first annual payment is treated at start age; monthly amount adjusted once each full year after start.
+  for(let y=o.start;y<end;y++){
+   const yearIndex=y-o.start;
+   const monthly=first*Math.pow(1+inf,yearIndex);
+   const annual=monthly*12;
+   nominal+=annual;
+   real+=annual/Math.pow(1+inf,y-age);
+   months+=12;
+  }
+  return {...o,first,nominal,real,months};
+ });
+ $('cards').innerHTML=results.map(r=>`<div class="resultcard"><h3>${r.name}</h3><span class="pill">${r.desc}</span><p>수령 시작: <b>${r.start}세</b></p><p>첫해 월 연금액<br><span class="big">${won(r.first)}</span></p><p>최종 나이까지 누적 명목액<br><b>${won(r.nominal)}</b></p><p>누적 물가조정 가치<br><b>${won(r.real)}</b></p></div>`).join('');
+ $('tablebody').innerHTML=results.map(r=>`<tr><td>${r.name}</td><td>${r.start}세</td><td>${won(r.first)}</td><td>${won(r.nominal)}</td><td>${won(r.real)}</td></tr>`).join('');
+ const e=results[0],n=results[1],d=results[2];
+ const breakEven=(a,b)=>{ // age when later-start option cumulative real value exceeds earlier-start option; yearly sampling
+  let ca=0,cb=0; const firstA=a.first,firstB=b.first;
+  for(let y=Math.min(a.start,b.start);y<=110;y++){
+   if(y>=a.start) ca+=12*firstA*Math.pow(1+inf,y-a.start)/Math.pow(1+inf,y-age);
+   if(y>=b.start) cb+=12*firstB*Math.pow(1+inf,y-b.start)/Math.pow(1+inf,y-age);
+   if(y>=Math.max(a.start,b.start)&&cb>=ca) return y+1;
+  } return null;
+ };
+ const beEN=breakEven(e,n),beND=breakEven(n,d);
+ $('assumptions').textContent=`비교 가정: 정상 수령 개시 ${age}세, 비교 종료 ${end}세, 연평균 물가상승률 ${(inf*100).toFixed(1)}%. `+
+ `조기수령과 정상수령의 누적 물가조정 가치가 역전되는 예상 나이: ${beEN?beEN+'세':'비교 범위 내 없음'}. `+
+ `정상수령과 연기수령의 누적 물가조정 가치가 역전되는 예상 나이: ${beND?beND+'세':'비교 범위 내 없음'}.`;
+ window.lastResult=`국민연금 수령 방식 비교\n정상 개시 나이: ${age}세\n정상 예상 월 연금액: ${won(base)}\n물가상승률 가정: ${(inf*100).toFixed(1)}%\n비교 종료 나이: ${end}세\n`+results.map(r=>`${r.name}: 시작 ${r.start}세, 첫해 월액 ${won(r.first)}, 누적 명목액 ${won(r.nominal)}, 누적 물가조정 가치 ${won(r.real)}`).join('\n')+`\n${$('assumptions').textContent}\n※ 참고용 추정치입니다.`;
+}
+$('calc').addEventListener('click',calculate);
+$('reset').addEventListener('click',()=>{$('normalAge').value='65';$('monthly').value=1500000;$('earlyYears').value='3';$('delayYears').value='3';$('inflation').value='2.0';$('endAge').value='90';calculate();});
+$('copy').addEventListener('click',async()=>{if(!window.lastResult)calculate();try{await navigator.clipboard.writeText(window.lastResult);$('error').textContent='결과를 복사했습니다.';}catch(e){$('error').textContent='자동 복사가 제한되었습니다. 결과를 직접 선택해 복사해 주세요.';}});
+$('print').addEventListener('click',()=>window.print());
+['normalAge','monthly','earlyYears','delayYears','inflation','endAge'].forEach(id=>$(id).addEventListener('change',calculate));calculate();
+</script></body></html>
